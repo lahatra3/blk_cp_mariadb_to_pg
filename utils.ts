@@ -11,7 +11,7 @@ export const rowToCsvData = (row: any): string => {
                 });
             }
 
-            return value && `"${String(value).replace(/"/g, '""')}"`;
+            return value ? `"${String(value).replace(/"/g, '""')}"` : 'NA';
         })
         .join(',') + '\n';
 }

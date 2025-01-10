@@ -1,21 +1,26 @@
-import type { PoolConfig as PostgresPoolConfig } from "pg";
+import { availableParallelism } from 'os';
+import type { PoolConfig as PostgresPoolConfig } from 'pg';
 import type { PoolConfig as MariadbPoolConfig } from 'mariadb';
 
-export const mariadbConfig: MariadbPoolConfig = {
-    host: '172.17.0.1',
-    port: 3307,
-    user: 'mariadb',
-    password: 'm_41*d3',
-    database: 'ldf'
+export const MARIADB_CONF: MariadbPoolConfig = {
+    host: Bun.env['MARIADB_HOST'],
+    port: +Bun.env['MARIADB_PORT']!,
+    user: Bun.env['MARIADB_USER'],
+    password: Bun.env['MARIADB_PASSWORD'],
+    database: Bun.env['MARIADB_DBNAME']
 };
   
-export const postgresConfig: PostgresPoolConfig = {
-    host: '172.17.0.1',
-    port: 5431,
-    user: 'postgres',
-    password: 'p0s_gr3s',
-    database: 'ldf'
+export const POSTGRES_CONF: PostgresPoolConfig = {
+    host: Bun.env['PG_HOST'],
+    port: +Bun.env['PG_PORT']!,
+    user: Bun.env['PG_USER'],
+    password: Bun.env['PG_PASSWORD'],
+    database: Bun.env['PG_DBNAME']
 };
 
-export const DATA_SOURCE_TABLE = Bun.env['DATA_SOURCE_TABLE'];
-export const DATA_SINK_TABLE = Bun.env['DATA_SINK_TABLE'];
+export const DATA_SOURCE_TABLE = Bun.env['MARIADB_TABLE'];
+export const DATA_SINK_TABLE = Bun.env['PG_TABLE'];
+
+export const MAX_WORKERS = +Bun.env['MAX_WORKERS']! || availableParallelism();
+export const LIMIT = +Bun.env['BATCH_SIZE']! || 10;
+export const SLEEP_TIME: number = 131;

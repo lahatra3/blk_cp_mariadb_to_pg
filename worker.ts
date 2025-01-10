@@ -3,18 +3,20 @@ import { Readable, Transform } from 'stream';
 import { createPool } from 'mariadb';
 import { Pool } from 'pg';
 import { from } from 'pg-copy-streams';
-import { mariadbConfig, postgresConfig, DATA_SOURCE_TABLE, DATA_SINK_TABLE } from 'config';
-import { rowToCsvData } from 'utils';
+import { rowToCsvData } from './utils';
+import { DATA_SINK_TABLE, DATA_SOURCE_TABLE, MARIADB_CONF, POSTGRES_CONF } from './config';
 
-const mariadbPool = createPool(mariadbConfig);
-const postgresPool = new Pool(postgresConfig);
+const mariadbPool = createPool(MARIADB_CONF);
+const postgresPool = new Pool(POSTGRES_CONF);
 
-const copyData = async (limit: number, offset: number): Promise<void> => {
+const copyData = async (limit: number, offset: number): Promise<void> => {    
     const mariadbConn = await mariadbPool.getConnection();
-    const postgresConn = await postgresPool.connect();
+    const postgresConn = await postgresPool.connect();    
 
     const READ_QUERY = `${DATA_SOURCE_TABLE} LIMIT ${limit} OFFSET ${offset}`;
     const WRITE_QUERY = `COPY ${DATA_SINK_TABLE} FROM STDIN WITH CSV QUOTE '"' DELIMITER ','`;
+
+    let done = true;
 
     try {
         const inputStream: Readable = mariadbConn.queryStream({
@@ -22,6 +24,8 @@ const copyData = async (limit: number, offset: number): Promise<void> => {
             bulk: true,
             timezone: 'Z'
         });
+
+        inputStream.on('data', (chunk) => done = false);
 
         const transformStream: Transform = new Transform({
             objectMode: true,
@@ -31,18 +35,21 @@ const copyData = async (limit: number, offset: number): Promise<void> => {
             }
         });
 
-        const outputStream = postgresConn.query(from(WRITE_QUERY));        
+        const outputStream = postgresConn.query(from(WRITE_QUERY));
 
-        await new Promise<void>((resolve, reject) => {
+        return await new Promise<void>((resolve, reject) => {
             inputStream
                 .pipe(transformStream)
                 .pipe(outputStream)
-                .on('finish', resolve)
+                .on('finish', () => {
+                    parentPort?.postMessage({ offset, limit, success: true, done });
+                    resolve();
+                })
                 .on('error', reject);
         });
-        parentPort?.postMessage({ offset, limit, success: true, done: false });
+
     } catch(error) {
-        console.error('Error during data copy:', error);
+        console.error('Error during data copy...', error);
         parentPort?.postMessage({ offset, limit, success: false, error });
     } finally {
         mariadbConn.release();
@@ -50,7 +57,7 @@ const copyData = async (limit: number, offset: number): Promise<void> => {
     }
 }
 
-copyData(workerData.offset, workerData.limit).finally(() => {
+copyData(workerData.limit, workerData.offset).finally(() => {
     mariadbPool.end();
     postgresPool.end();
 });
