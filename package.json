@@ -1,7 +1,11 @@
 {
   "name": "blk_cp_mariadb_to_pg",
-  "module": "main.ts",
+  "module": "src/main.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun src/main.ts",
+    "start": "bun --smol src/main.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

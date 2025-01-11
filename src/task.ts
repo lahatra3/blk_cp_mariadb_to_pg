@@ -9,7 +9,7 @@ import { DATA_SINK_TABLE, DATA_SOURCE_TABLE, MARIADB_CONF, POSTGRES_CONF } from 
 const mariadbPool = createPool(MARIADB_CONF);
 const postgresPool = new Pool(POSTGRES_CONF);
 
-const copyData = async (limit: number, offset: number): Promise<void> => {    
+const copyProcessing = async (limit: number, offset: number): Promise<void> => {    
     const mariadbConn = await mariadbPool.getConnection();
     const postgresConn = await postgresPool.connect();    
 
@@ -57,7 +57,7 @@ const copyData = async (limit: number, offset: number): Promise<void> => {
     }
 }
 
-copyData(workerData.limit, workerData.offset).finally(() => {
+copyProcessing(workerData.limit, workerData.offset).finally(() => {
     mariadbPool.end();
     postgresPool.end();
 });

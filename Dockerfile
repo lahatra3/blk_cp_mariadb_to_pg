@@ -7,4 +7,4 @@ RUN bun install --production
 
 COPY . .
 
-CMD [ "bun", "--production", "--smol", "main.ts" ]
+CMD [ "bun", "--smol", "src/main.ts" ]

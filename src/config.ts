@@ -24,3 +24,5 @@ export const DATA_SINK_TABLE = Bun.env['PG_TABLE'];
 export const MAX_WORKERS = +Bun.env['MAX_WORKERS']! || availableParallelism();
 export const LIMIT = +Bun.env['BATCH_SIZE']! || 10;
 export const SLEEP_TIME: number = 131;
+// export const TASK_FILE: string = Bun.env['TASK_FILE']! || 'task.js';
+
