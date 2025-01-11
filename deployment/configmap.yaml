@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blk-cp-mariadb-to-pg-config
+data:
+  MARIADB_HOST: "192.168.49.1"
+  MARIADB_PORT: "3307"
+  MARIADB_USER: "mariadb"
+  MARIADB_PASSWORD: "m_41*d3"
+  MARIADB_DBNAME: "ldf"
+  MARIADB_TABLE: "SELECT customer_id, phone_number, billing_address, city, state, zip_code, service_type, connection_speed, contract_start_date, contract_end_date, monthly_bill_amount, data_usage, voice_usage, sms_usage, roaming_enabled, device_model, device_os, device_release_date, data_plan_type, data_plan_start_date, data_plan_end_date, data_plan_price, call_duration, call_type, call_cost, sms_cost, data_overage_cost, voice_roaming_cost, data_roaming_cost FROM prm_cdr_rated"
+  PG_HOST: "192.168.49.1"
+  PG_PORT: "5431"
+  PG_USER: "postgres"
+  PG_PASSWORD: "p0s_gr3s"
+  PG_DBNAME: "ldf"
+  PG_TABLE: "public.prm_cdr_rated(customer_id, phone_number, billing_address, city, state, zip_code, service_type, connection_speed, contract_start_date, contract_end_date, monthly_bill_amount, data_usage, voice_usage, sms_usage, roaming_enabled, device_model, device_os, device_release_date, data_plan_type, data_plan_start_date, data_plan_end_date, data_plan_price, call_duration, call_type, call_cost, sms_cost, data_overage_cost, voice_roaming_cost, data_roaming_cost)"
+  BATCH_SIZE:  "300000"
+  MAX_WORKERS:  "3"

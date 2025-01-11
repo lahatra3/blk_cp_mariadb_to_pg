@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: blk-cp-mariadb-to-pg-job
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: blk-cp-mariadb-to-pg
+            image: lahatra3/blk_cp_mariadb_to_pg:latest
+            resources:
+              limits:
+                memory: "7Gi"
+                cpu: "3"
+            envFrom:
+              - configMapRef:
+                  name: blk-cp-mariadb-to-pg-config
+          restartPolicy: OnFailure
